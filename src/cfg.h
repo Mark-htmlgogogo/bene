@@ -21,7 +21,7 @@ typedef unsigned int varset_t;
 
 #endif
 
-#define SINGLETON(i) (((varset_t)1) << i)
+#define SINGLETON(i) (((varset_t)1) << i) /* = 2^i */
 #define MIN_NODE_SCORE (-FLT_MAX / MAX_NOF_VARS)
 typedef double score_t;
 

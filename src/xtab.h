@@ -3,16 +3,17 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 typedef struct xentry xentry;
 typedef unsigned char uchar;
 typedef unsigned int uint;
 
 struct xentry {
-  uchar* key;
-  int*  val;
-  xentry* next;
-  uint h;       /* h denotes hash key */
+  uchar*  key;   /* points to a distinct row of data in .iris file, such as "1 1 2 2 2" */
+  int*    val;   /* counts the frequency of the key */ 
+  xentry* next;  /* points to the next distinct xentry */
+  uint    h;     /* h denotes hash key */
 };
 
 typedef struct xtab xtab;

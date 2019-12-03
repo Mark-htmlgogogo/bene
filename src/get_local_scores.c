@@ -24,20 +24,20 @@
 
 /* Data format */
 
-int  N;
-int  nof_vars;
-int  nof_cols;
-int* nof_colvals;
-int* nof_vals = NULL;
-int* sel_vars;
+int  N; /* number of samples in .idt */
+int  nof_vars; /* number of vars in .idt  */
+int  nof_cols; /* number of columns in */
+int* nof_colvals; /* [i]: number of possible values for column var i */
+int* nof_vals = NULL; /* [i]: number of possible values for the i-th selected var */
+int* sel_vars; /* [i]: the i-th selected var */
 
 const char* datfile = NULL;
 int* data = NULL;
 
 /* Hashing and working memory */
 
-#define RANGE  (1024)
-uint** xh;  /* a random number [0..RANGE[ for each value of each variable  */
+#define RANGE  (1024) /* the range of hashkey: 0,1,2,...,102 */
+uint** xh;  /* xh[i][j]: a random number [0..RANGE] for j-th value of i-th selected var */
 uchar** keymem;  /* for each number of vars memory for configs and counts  */ 
 xtab**  ctbs;    /* for each number of vars hash table for configs         */ 
 
@@ -76,6 +76,7 @@ int save_all_scores = 1; /* otherwise do not save if over max_parents */
 
 /***** Initialising globals *****/
 
+/* set nof_vars and sel_vars */
 void get_sel_vars(const char* selfile) {
   
   nof_vars = (selfile) ? nof_lines(selfile) : nof_cols; 
@@ -117,19 +118,19 @@ void init_nof_vals() {
 void init_data_format(const char* vdfile, const char* datfile) {
   N        = nof_lines(datfile);
   nof_cols = nof_lines(vdfile);
-  nof_colvals = (int*) calloc(nof_cols, sizeof(int));    
+  nof_colvals = (int*) calloc(nof_cols, sizeof(int));
 
-  { /* Count values of column variables */
+  { /* Count the number of values of column variables */
     FILE* vdf = fopen(vdfile,"r");
     int i = 0; /* line number in vdfile */
     int c = 0; 
     int prev = 'X';
-    while((EOF != (c=fgetc(vdf))) && (i<nof_cols)){
+    while((EOF != (c=fgetc(vdf))) && (i<nof_cols)){ /* read a char from vdf */
       if ((c=='\r') || (c=='\n' && prev!='\r')) {
 	/* line ended (but \n after \r may remain) */
 	++i;
       } else if (c != '\n'){
-      	nof_colvals[i] += (c=='\t');
+      	nof_colvals[i] += (c=='\t'); /* count the number of HT */
       }
       prev = c;
     }
@@ -143,7 +144,7 @@ void init_xh(){
   xh = calloc(nof_vars, sizeof(int*));
   for(i=0; i<nof_vars; ++i){
     int v;
-    xh[i] = calloc(nof_vals[i], sizeof(uint));
+    xh[i] = calloc(nof_vals[i], sizeof(uint)); 
     for(v=0; v<nof_vals[i]; ++v){
       xh[i][v] = (int) ((score_t)RANGE*rand()/(RAND_MAX+1.0));
     }
@@ -163,13 +164,13 @@ void cread_data(const char* datfile){
 void next_line_file(FILE* datf, uchar* row_vars) {
   int i  = 0; /* column index */
   int j  = 0; /* variable index */
-  int r  = 0;
+  int r  = 0; /* temp var to store data read from .idt */
   
-  for(j=0; j<nof_vars; ++j)
-    for(;i<=sel_vars[j]; ++i)
-      if (1 == fscanf(datf, "%d", &r))
-	row_vars[j]=r;
- 
+  for(j=0; j<nof_vars; ++j){
+    for(;i<=sel_vars[j]; ++i){
+      if (1 == fscanf(datf, "%d", &r))/* put a single data(an integer) into r */
+	      row_vars[j]=r;}
+  }
   for(; i<nof_cols; ++i) if (1==fscanf(datf, "%d", &r)){}
 }  
 
@@ -183,25 +184,25 @@ void next_line_data(int row_ix, uchar* row_vars){
 }
 
 xtab* dat2ctb(const char* datfile) {
-  xtab* ctb = xcreate(RANGE, N);
+  xtab* ctb = xcreate(RANGE, N); /* temp xtab */
   FILE* datf = (data) ? NULL : fopen(datfile,"r"); 
-  uchar* row_vars = (uchar*) malloc(nof_vars*sizeof(uchar));
+  uchar* row_vars = (uchar*) malloc(nof_vars*sizeof(uchar)); /* [i]: i-th selected var in current line */
   int row = 0;
 
   for(row=0;row<N;++row){
-    uint h = 0;
+    uint h = 0; /* temp hashkey */
 
     if (data)
       next_line_data(row, row_vars);
     else
-      next_line_file(datf, row_vars);
+      next_line_file(datf, row_vars); /* read next line of data in .idt file */
       
-    { /* calculate hashkey */
+    /* calculate hashkey */
       int j;
-      for(j=0;j<nof_vars;++j)
-	h ^= xh[j][row_vars[j]];
-    }
-
+      for(j=0;j<nof_vars;++j){
+	      h ^= xh[j][row_vars[j]];
+      }
+ 
     { /* add to hashtable */
       int new = 0;
       xentry* x = xadd(ctb, h, row_vars, nof_vars, &new);
@@ -218,23 +219,23 @@ xtab* dat2ctb(const char* datfile) {
 }
 
 void datctb2ctb(xtab* ctb) {
-  xtab* ctb2    = ctbs[nof_vars];
+  xtab* ctb2    = ctbs[nof_vars]; /* for each number of vars hash table for configs */ 
   uchar* keymp2 = keymem[nof_vars];
   xentry* x;
 
   for(x = ctb->xentries; x<ctb->free; ++x){
     int new = 1;
-    xentry* x2 = xadd(ctb2, x->h, x->key, nof_vars, &new);
-    x2->key = memcpy(keymp2, x->key, nof_vars);
+    xentry* x2 = xadd(ctb2, x->h, x->key, nof_vars, &new); /* add x2 to ctb2 in consecutive memory in ctb2->xentries*/
+    x2->key = memcpy(keymp2, x->key, nof_vars); /* copy the key of x2 to consecutive memory in keymp2 */
     keymp2 += nof_vars;
-    x2->val = memcpy(keymp2, x->val, sizeof(int));
+    x2->val = memcpy(keymp2, x->val, sizeof(int)); /* copy the value of x2 to consecutive memory in keymp2 */
     keymp2 += sizeof(int);
   }
 
 }
 
 /* keymem is a misnomer. It has space for keys and the keycounts. */
-
+/* for each number of vars memory for configs and counts  */
 void get_keymem(int nof_keys){
   int i;
   keymem  = (uchar**) malloc((nof_vars+1)*sizeof(uchar*));
@@ -243,19 +244,20 @@ void get_keymem(int nof_keys){
   }
 }
 
-
+/* freqmem: a working memory to collect the conditional frequences */
 void get_freqmem(int nof_keys){
   int max_nof_vals = 0;
   int i;
-  for(i=0; i<nof_vars; ++i)
+  for(i=0; i<nof_vars; ++i){/* find the max number of values for each var */
     if(nof_vals[i] > max_nof_vals)
       max_nof_vals = nof_vals[i];
-  
+ } 
   freqmem = (int*) malloc(nof_keys * max_nof_vals * sizeof(int));
 
 }
 
 void get_ctbs(int nof_keys){
+  printf("get_ctbs(%d)\n", nof_keys);
   int i;
 
   ctbs  = calloc(nof_vars+1, sizeof(xtab*));
@@ -264,6 +266,7 @@ void get_ctbs(int nof_keys){
 }
 
 void init_memory(const char* datfile){
+  printf("init_memory(%s)\n",datfile);
   xtab* ctb0       = dat2ctb(datfile);
   int max_nof_keys = xcount(ctb0);
 
@@ -271,7 +274,7 @@ void init_memory(const char* datfile){
   get_ctbs(max_nof_keys);
   datctb2ctb(ctb0);
 
-  { 
+  { /* free the memory of ctb0, since all information has been stored in ctbs[nof_keys] */
     xentry* x;
     for(x = ctb0->xentries; x<ctb0->free; ++x){
       free(x->key);
@@ -282,7 +285,7 @@ void init_memory(const char* datfile){
 
   get_freqmem(max_nof_keys);
 
-}    
+}
 
 void get_constraints(const char* filename) 
 {
@@ -377,6 +380,9 @@ void init_scorer(const char* essarg, const char* logregfile) {
 }
 
 void init_globals_for_sel_vars(const char* datfile){
+
+  printf("init_globals_for_sel_vars(%s)\n", datfile);
+
   init_nof_vals();
   init_xh();
   init_memory(datfile);
@@ -385,6 +391,9 @@ void init_globals_for_sel_vars(const char* datfile){
 void init_globals(const char* vdfile, const char* datfile, const char* essarg, const char* resfile,
 		  const char* cstrfile, const char* priorfile, 
                   const char* logregfile, const char* selfile, int use_subset_walker) {
+
+  printf("init_globals(%s, %s, %s, %s, %s, %s, %s, %s, %d )\n",vdfile, datfile, essarg, resfile, cstrfile, priorfile, logregfile, selfile, use_subset_walker);
+
   resultf = (strcmp("-", resfile) == 0) ? stdout : fopen(resfile, "wb");
   create_output_buffer(priorfile);
   
@@ -630,7 +639,7 @@ varset_t task_index2varset(int nof_taskvars, int task_index)
   varset_t fixvars = ((varset_t) task_index) << nof_taskvars;
   return (~fixvars) & allvars;
 }
- 
+
 int main(int argc, char* argv[])
 {
 
