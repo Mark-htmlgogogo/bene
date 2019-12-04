@@ -348,7 +348,7 @@ score_t get_nof_cfgs(varset_t vs)
   score_t res = 1;
   int i;
   for(i=0; i<nof_vars; ++i) {
-    if(vs & SINGLETON(i)) {
+    if(vs & SINGLETON(i)) { /* 011 & 000/001/010 */
       res *= nof_vals[i];
     }
   }
@@ -462,7 +462,7 @@ void free_globals(int use_subset_walker){
 /****** Gathering counts ******/
 
 void contab2contab(int i, int len_vs)
-{
+{/* ctb(0,1,2) to ctb(1,2), and store ctb(1,2) in ctbs[2] */
   xtab* ctb  = ctbs[len_vs];
   xtab* ctb2 = ctbs[len_vs - 1];
 
@@ -481,24 +481,24 @@ void contab2contab(int i, int len_vs)
     xentry* xk = ctb->xentries + k;
     xentry* x2;
     uchar* key   = xk->key;
-    uint h = xk->h ^ xhi[key[i]];
+    uint h = xk->h ^ xhi[key[i]]; /* ？？？ */
     int new = 0;
     uchar tmp = key[i];
-    key[i] = 0;
+    key[i] = 0; /* set key[i] to 0, since the i-th variable will be marginalized */
 
     x2 = xadd(ctb2, h, key, nof_vars, &new);
 
     if(new) {
-      x2->key = memcpy(keymp2, key, nof_vars);
+      x2->key = memcpy(keymp2, key, nof_vars); /* only if new, key is add to keymem[i] */
       keymp2 += nof_vars;
 
-      *(x2->val = (int*) keymp2) = 0;
+      *(x2->val = (int*) keymp2) = 0; 
       keymp2 += sizeof(int);
     }
 
     *x2->val += *xk->val;
 
-    key[i] = tmp;
+    key[i] = tmp; /* restore marginalised key[i] */
   }
 }
 
@@ -523,7 +523,7 @@ int contab2condtab(int i, int len_vs)
     xentry* xk = ctb->xentries + k;
     xentry* x;
     uchar* key   = xk->key;
-    uchar val_i = key[i];
+    uchar val_i = key[i]; /* i will be marginalised to get its conditional frequence table */
     uint h = xk->h ^ xhi[val_i];
     int new = 0;
     key[i] = 'X';
@@ -538,7 +538,7 @@ int contab2condtab(int i, int len_vs)
       freqp  += vc_i;
     }
 
-    x->val[val_i] += *xk->val;
+    x->val[val_i] += *xk->val; /* !!! */
 
     key[i] = val_i;
 
@@ -556,13 +556,13 @@ void scores(int len_vs, varset_t vs)
   for(i=0; i<nof_vars; ++i){
     varset_t iset = SINGLETON(i);
     if (vs & iset) {
-      int nof_freqs = contab2condtab(i, len_vs);
+      int nof_freqs = contab2condtab(i, len_vs); /*  */
 
-      vs ^= iset;
+      vs ^= iset; /* 00000111 ^ 00000001 = 000000110*/
       if (nof_parents > max_parents) {
 	*buffer_ptr++ = (score_t) MIN_NODE_SCORE;
       } else if (musts && 
-	  (((musts[i] & vs) != musts[i]) || ((nopes[i] & vs) != 0))) { 
+	  (((musts[i] & vs) != musts[i]) || ((nopes[i] & vs) != 0))) {
 	*buffer_ptr++ = (score_t) MIN_NODE_SCORE;
       } else {
 	*buffer_ptr++ += scorer(i, vs, nof_freqs) - use_MU*LOG2*nof_parents;
@@ -631,13 +631,13 @@ int ilog2(int i) /* i has to be > 0 */
   while(i>>=1) ++n;
   return n;
 }
-    
+
 
 varset_t task_index2varset(int nof_taskvars, int task_index)
 {
   varset_t allvars = LARGEST_SET(nof_vars);
   varset_t fixvars = ((varset_t) task_index) << nof_taskvars;
-  return (~fixvars) & allvars;
+  return (~fixvars) & allvars; /* when fixvars==1, just returns allvars */
 }
 
 int main(int argc, char* argv[])
@@ -724,9 +724,9 @@ int main(int argc, char* argv[])
 	 - maybe you could have just gathered these in the first place */
 
       len_vs = nof_vars; 
-      for(i=0; i<nof_vars; ++i)
-	if(!(vs & SINGLETON(i)))
-	  contab2contab(i, len_vs--);
+      for(i=0; i<nof_vars; ++i){
+	      if(!(vs & SINGLETON(i))) /* if (vs == SINGLETON(i)) */
+	        contab2contab(i, len_vs--);}
     }
 
     if(no_recurse)

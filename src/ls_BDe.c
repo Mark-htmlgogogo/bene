@@ -30,32 +30,32 @@ score_t bde_score(int i, varset_t psi, int nof_freqs){
 
   int vc_v = nof_vals[i];
   score_t pcc =  get_nof_cfgs(psi);
-  score_t ess_per_cc  = is_BDeu ? ess/((is_BDs ? nof_freqs : pcc)*vc_v) : ess;
-  score_t ess_per_pcc = ess_per_cc * vc_v;
+  score_t ess_per_cc  = is_BDeu ? ess/((is_BDs ? nof_freqs : pcc)*vc_v) : ess; /* 1/27,N^{'}_{ijk} Equation(12.2) in Chickering1996 */
+  score_t ess_per_pcc = ess_per_cc * vc_v; /* 1/9, N^{'}_{ij} */
   score_t xpenalty = is_Cow ? log(pcc*vc_v) : 0.0;
 
   int* freqp = freqmem;
   int* end_freqp = freqp + nof_freqs * vc_v;
 
-  score_t res = nof_freqs * lgamma(ess_per_pcc);
-  int nof_non_zeros = 0;
-    
+  score_t res = nof_freqs * lgamma(ess_per_pcc); /* lgamma: Computes the natural logarithm of the absolute value of the gamma function of arg */
+ int nof_non_zeros = 0;
+
   memset(freq2mem,  0, nof_freq2s*sizeof(int)); /* could reset later */
   memset(freq2mem2, 0, nof_freq2s*sizeof(int)); /* could reset later */
 
   for(;freqp < end_freqp; freqp += vc_v) {
     int  pcfreq = 0;
-    int v;
+    int  v;
     for(v = 0; v<vc_v; ++v) {
       int freq = freqp[v];
       if (freq) {
-	pcfreq += freq;
-	++ nof_non_zeros;
-	if(data_not_big || freq<nof_freq2s){
-	  ++freq2mem[freq];
-	} else {
-	  res += lgamma(ess_per_cc + freq);
-	}
+        pcfreq += freq;
+        ++ nof_non_zeros;
+        if(data_not_big || freq<nof_freq2s){
+          ++freq2mem[freq];
+	    } else {
+	            res += lgamma(ess_per_cc + freq);
+	            }
       }
     }
     if(data_not_big || pcfreq<nof_freq2s){
@@ -99,7 +99,7 @@ scorefun init_BDe_scorer(char* arg){
   }
 
   ess = atof(arg);
-  data_not_big = N<BIG_BDE_DATA; 
+  data_not_big = (N<BIG_BDE_DATA); 
   nof_freq2s = MIN(N+1,BIG_BDE_DATA);
 
   freq2mem  = malloc(nof_freq2s * sizeof(int));

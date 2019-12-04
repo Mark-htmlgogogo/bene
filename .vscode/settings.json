@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "xtab.h": "c"
+        "xtab.h": "c",
+        "math.h": "c"
     }
 }

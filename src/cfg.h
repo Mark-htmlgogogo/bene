@@ -17,7 +17,7 @@ typedef uint64_t varset_t;
 typedef unsigned int varset_t;
 #define VARSET_PRIFMT "u"
 #define VARSET_SCNFMT "u"
-#define LARGEST_SET(NOF_VARS) ((NOF_VARS)==MAX_NOF_VARS?(varset_t)~0:(1U<<(NOF_VARS))-1)
+#define LARGEST_SET(NOF_VARS) ((NOF_VARS)==MAX_NOF_VARS?(varset_t)~0:(1U<<(NOF_VARS))-1) /* number of non-empty subsets: 2^n - 1*/
 
 #endif
 
