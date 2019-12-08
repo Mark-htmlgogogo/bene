@@ -502,7 +502,7 @@ void contab2contab(int i, int len_vs)
   }
 }
 
-int contab2condtab(int i, int len_vs)
+int contab2condtab(int i, int len_vs)/* marginalise the i-th var in vs and get the conditional frequence table table */
 {
   int vc_i   = nof_vals[i];
   int* freqp = freqmem;
@@ -553,12 +553,12 @@ void scores(int len_vs, varset_t vs)
   int nof_parents = len_vs - 1;
 
   if (!save_all_scores && nof_parents > max_parents) return;
-  for(i=0; i<nof_vars; ++i){
+  for(i=0; i<nof_vars; ++i){/* for the i-th var in vs */
     varset_t iset = SINGLETON(i);
-    if (vs & iset) {
-      int nof_freqs = contab2condtab(i, len_vs); /*  */
+    if (vs & iset) { /* 00000111 & 00000001  if vs contains iset*/
+      int nof_freqs = contab2condtab(i, len_vs);
 
-      vs ^= iset; /* 00000111 ^ 00000001 = 000000110*/
+      vs ^= iset; /* 00000111 ^ 00000001 = 000000110 delete i-th var from vs */
       if (nof_parents > max_parents) {
 	*buffer_ptr++ = (score_t) MIN_NODE_SCORE;
       } else if (musts && 
@@ -577,21 +577,22 @@ void scores(int len_vs, varset_t vs)
 	}
 	buffer_ptr = buffer;
       }
-      vs ^= iset;
+      vs ^= iset; /* restore i to vs */
     }
   }
 }
 
-void walk_contabs(int len_vs, varset_t vs, int first_out_ix)
+void walk_contabs(int len_vs, varset_t vs, int first_out_ix)/* GetLocalScores(ct, evars) */
 {
 
   /* printf("%d %d\n", len_vs, vs); */
   scores(len_vs, vs);
 
   if (len_vs > 1){
+
     int i;
     for (i=0; i<first_out_ix; ++i) {
-      contab2contab(i, len_vs);
+      contab2contab(i, len_vs); 
       walk_contabs(len_vs-1, vs^SINGLETON(i), i);
     }
   }
@@ -686,7 +687,7 @@ int main(int argc, char* argv[])
     const char* cstrfile   = NULL;
     const char* priorfile  = NULL;
     const char* selfile = NULL;
-    varset_t vs;
+    varset_t vs; /* variable set, represented by bits, for example, vs = 6 = 011 = {v1,v2} */
     
     if (gopt_arg(options, 'n', &nof_tasks_s))  nof_tasks  = atoi(nof_tasks_s);
     if (gopt_arg(options, 'i', &task_index_s)) task_index = atoi(task_index_s);

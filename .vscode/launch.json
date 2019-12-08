@@ -4,7 +4,10 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
+
+        /* configurations for debugging get_local_scores.c */
+        /* ./bin/get_local_scores example/iris.vd example/iris.idt 1 example/resdir/res -l bin/logreg256x2000.bin -s example/iris.sel  */
+/*         {
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
@@ -21,6 +24,49 @@
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
+            ]
+        } */
+
+
+        /* configurations for debugging split_local_scores.c */
+/*         {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/split_local_scores",
+            "args": ["3","${workspaceFolder}/example/resdir"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                } */
+
+
+        /* configurations for debugging reverse_local_scores.c*/
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/reverse_local_scores",
+            "args": ["3","${workspaceFolder}/example/resdir"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+                
             ]
         }
     ]

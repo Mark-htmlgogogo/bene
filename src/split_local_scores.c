@@ -11,6 +11,8 @@
 
 void split_local_scores(int nof_vars, char* dirname) {
 
+  printf("split_local_scores(%d, %s)", nof_vars, dirname);
+
   FILE** files = open_files(nof_vars, dirname, ".slt", "wb");
 
   char* fn = malloc((strlen(dirname)+1+3+1)*sizeof(char));

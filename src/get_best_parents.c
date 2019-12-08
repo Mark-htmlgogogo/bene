@@ -10,6 +10,8 @@
 
 void get_best_parents(int nof_vars, char* dirname) {
 
+  printf("get_best_parents(%d, %s)", nof_vars, dirname);
+
   varset_t nof_parsets = 1U<<(nof_vars-1);
   int i;
 
@@ -68,7 +70,7 @@ void get_best_parents(int nof_vars, char* dirname) {
 
 int main(int argc, char* argv[])
 {
-
+  
   if (argc!=3) {
     fprintf(stderr, "Usage: best_parents nof_vars dirname\n");
     return 1;

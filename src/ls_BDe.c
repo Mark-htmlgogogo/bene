@@ -27,7 +27,7 @@ extern double lgamma(double); /* to avoid the warning with ansi-flag */
 /* BDe */
 
 score_t bde_score(int i, varset_t psi, int nof_freqs){
-
+/* child:i(0, i.e., the first var v0), parent set index: psi(00000110, i.e., {v1,v2} */
   int vc_v = nof_vals[i];
   score_t pcc =  get_nof_cfgs(psi);
   score_t ess_per_cc  = is_BDeu ? ess/((is_BDs ? nof_freqs : pcc)*vc_v) : ess; /* 1/27,N^{'}_{ijk} Equation(12.2) in Chickering1996 */
@@ -37,8 +37,9 @@ score_t bde_score(int i, varset_t psi, int nof_freqs){
   int* freqp = freqmem;
   int* end_freqp = freqp + nof_freqs * vc_v;
 
-  score_t res = nof_freqs * lgamma(ess_per_pcc); /* lgamma: Computes the natural logarithm of the absolute value of the gamma function of arg */
- int nof_non_zeros = 0;
+  /* lgamma: Computes the natural logarithm of the absolute value of the gamma function of arg */
+  score_t res = nof_freqs * lgamma(ess_per_pcc); /* \sum_{j=1}^{q_i} lgm(N'_ij), for i=v0, Pi={v1,v2} */
+  int nof_non_zeros = 0;
 
   memset(freq2mem,  0, nof_freq2s*sizeof(int)); /* could reset later */
   memset(freq2mem2, 0, nof_freq2s*sizeof(int)); /* could reset later */

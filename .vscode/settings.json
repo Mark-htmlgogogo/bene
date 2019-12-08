@@ -1,6 +1,21 @@
 {
     "files.associations": {
         "xtab.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "ls_bdq.h": "c",
+        "files.h": "c"
+    },
+    //"workbench.colorTheme": "Atom One Dark"
+    // rest of your settings,
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground" : "#44e8fd50",
+        "titleBar.inactiveBackground": "#6ed6ff50",
+        //"activityBar.background": "#414441"
+        //"titleBar.activeForeground":"#000",
+        "editorGroup.border":"#060706",
+        "tab.activeBackground":"#44e8fd50",
+        "tab.inactiveBackground":"#00000050",
+        "tab.border":"#44e8fd50"
+        //"editorGroupHeader.tabsBorder":"#0026ff60"
     }
 }
