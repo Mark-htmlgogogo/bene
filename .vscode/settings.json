@@ -17,5 +17,7 @@
         "tab.inactiveBackground":"#00000050",
         "tab.border":"#44e8fd50"
         //"editorGroupHeader.tabsBorder":"#0026ff60"
-    }
+    },
+
+    "bashIde.explainshellEndpoint": "http://localhost:5000",
 }

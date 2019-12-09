@@ -4,6 +4,17 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        {
+            "type": "bashdb",
+            "request": "launch",
+            "name": "Bash-Debug (hardcoded script name)",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/bin/data2net.sh",
+            "args": ["${workspaceFolder}/example/iris.vd",
+                "${workspaceFolder}/example/iris.idt",
+                "1",
+                "${workspaceFolder}/example/resdir"]
+        },
 
         /* configurations for debugging get_local_scores.c */
         /* ./bin/get_local_scores example/iris.vd example/iris.idt 1 example/resdir/res -l bin/logreg256x2000.bin -s example/iris.sel  */
@@ -48,12 +59,12 @@
                 } */
 
 
-        /* configurations for debugging reverse_local_scores.c*/
+        /* configurations for debugging reverse_local_scores.c, split_local_scores.c & get_best_parents.c*/
         {
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/reverse_local_scores",
+            "program": "${workspaceFolder}/bin/get_best_parents",
             "args": ["3","${workspaceFolder}/example/resdir"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
