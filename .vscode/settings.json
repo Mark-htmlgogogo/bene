@@ -3,7 +3,8 @@
         "xtab.h": "c",
         "math.h": "c",
         "ls_bdq.h": "c",
-        "files.h": "c"
+        "files.h": "c",
+        "priority_queue.c": "cpp"
     },
     //"workbench.colorTheme": "Atom One Dark"
     // rest of your settings,

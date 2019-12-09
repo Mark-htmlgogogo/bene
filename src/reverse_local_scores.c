@@ -34,7 +34,6 @@ void reverse_files(int nof_vars, char* dirname) {
 
 }
 
-
 int main(int argc, char* argv[])
 {
   if (argc!=3) {
