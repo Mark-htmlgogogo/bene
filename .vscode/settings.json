@@ -4,7 +4,8 @@
         "math.h": "c",
         "ls_bdq.h": "c",
         "files.h": "c",
-        "priority_queue.c": "cpp"
+        "priority_queue.c": "cpp",
+        "set": "cpp"
     },
     //"workbench.colorTheme": "Atom One Dark"
     // rest of your settings,
