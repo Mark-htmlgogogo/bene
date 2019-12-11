@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "files.h"
+#include "read_files.h"
 
 int nof_digits(int n)
 {
@@ -27,14 +27,14 @@ int nof_lines(const char* filename) {
   return nof_lines;
 }
 
-char* create_fn(char* dirname, int i, char* ext)
+char* create_fn(const char* dirname, int i, const char* ext)
 {  char* fn = (char*)malloc((strlen(dirname)+1+nof_digits(i)+strlen(ext)+1)
 		     *sizeof(char));
   sprintf(fn,"%s/%d%s", dirname,i,ext);
   return fn;
 }
 
-FILE* open_file(char* dirname, int i, char* ext, char* mode)
+FILE* open_file(const char* dirname, int i, const char* ext, const char* mode)
 {
   FILE* f;
   char* fn = create_fn(dirname, i, ext);
@@ -44,7 +44,7 @@ FILE* open_file(char* dirname, int i, char* ext, char* mode)
   return f;
 }
 
-FILE** open_files(int nof_vars, char* dirname, char* ext, char* mode)
+FILE** open_files(int nof_vars, const char* dirname, char* ext, char* mode)
 {
   FILE** files = (FILE**)malloc(nof_vars * sizeof(FILE*));
   int i;
