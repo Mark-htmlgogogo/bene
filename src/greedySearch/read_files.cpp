@@ -29,7 +29,7 @@ int nof_lines(const char* filename) {
 
 char* create_fn(const char* dirname, int i, const char* ext)
 {  char* fn = (char*)malloc((strlen(dirname)+1+nof_digits(i)+strlen(ext)+1)
-		     *sizeof(char));
+		    *sizeof(char));
   sprintf(fn,"%s/%d%s", dirname,i,ext);
   return fn;
 }
@@ -59,4 +59,3 @@ void free_files(int nof_vars, FILE** files){
   for(i=0; i<nof_vars; ++i) fclose(files[i]);
   free(files);
 }
-

@@ -74,22 +74,24 @@
         "thread": "cpp",
         "typeindex": "cpp",
         "typeinfo": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "cfg.h": "c"
     },
     //"workbench.colorTheme": "Atom One Dark"
     // rest of your settings,
     "workbench.colorCustomizations": {
-        "titleBar.activeBackground" : "#44e8fd50",
+        "titleBar.activeBackground" : "#44e7fd46",
         "titleBar.inactiveBackground": "#6ed6ff50",
         //"activityBar.background": "#414441"
         //"titleBar.activeForeground":"#000",
         "editorGroup.border":"#060706",
-        "tab.activeBackground":"#44e8fd50",
+        "tab.activeBackground":"#44e7fd46",
         "tab.inactiveBackground":"#00000050",
         "tab.border":"#44e8fd50"
         //"editorGroupHeader.tabsBorder":"#0026ff60"
     },
 
-    "bashIde.explainshellEndpoint": "http://localhost:5000",
+    //"bashIde.explainshellEndpoint": "http://localhost:5000",
     "C_Cpp.errorSquiggles": "Enabled",
+    "files.autoSave": "onWindowChange",
 }

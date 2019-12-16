@@ -8,7 +8,6 @@ else
     #CC=c99
 fi
 
-
 #CFLAGS="-Wextra -g -ansi -pedantic"
 #CFLAGS="-Wextra -g -ansi"
 CFLAGS="-Wall -O0 -pg -g3"

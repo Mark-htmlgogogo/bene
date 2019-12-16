@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
         {
             "type": "bashdb",
             "request": "launch",
@@ -16,10 +17,19 @@
                 "${workspaceFolder}/example/resdir"]
         },
 
+        {
+            "type": "bashdb",
+            "request": "launch",
+            "name": "run.sh",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/example/run.sh",
+            "args": ["iris","0"]
+        },
+
         /* configurations for debugging get_local_scores.c */
-        /* ./bin/get_local_scores example/iris.vd example/iris.idt 1 example/resdir/res -l bin/logreg256x2000.bin -s example/iris.sel  */
-/*         {
-            "name": "(gdb) Launch",
+        /* ../bin/get_local_scores iris.vd iris.idt 1 resdir/res -l ../bin/logreg256x2000.bin -s iris.sel  */
+        {
+            "name": "get_local_scores -s (3)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/get_local_scores",
@@ -36,12 +46,13 @@
                     "ignoreFailures": true
                 }
             ]
-        } */
+        },
 
 
         /* configurations for debugging split_local_scores.c */
-/*         {
-            "name": "(gdb) Launch",
+        /* ../bin/split_local_scores 3 resdir */
+         {
+            "name": "split_local_scores(3)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/split_local_scores",
@@ -56,15 +67,17 @@
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
-                } */
+                }
+            ]
+         },
 
 
         /* configurations for debugging reverse_local_scores.c, split_local_scores.c & get_best_parents.c*/
         {
-            "name": "(gdb) Launch",
+            "name": "reverse_local_scores(3)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/get_best_parents",
+            "program": "${workspaceFolder}/bin/reverse_local_scores",
             "args": ["3","${workspaceFolder}/example/resdir"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -79,6 +92,27 @@
                 }
                 
             ]
-        }
+        },
+
+        {
+            "name": "greedy(5)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/greedySearch/greedy",
+            "args": ["5", "${workspaceFolder}/example/resdir/"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+
     ]
 }

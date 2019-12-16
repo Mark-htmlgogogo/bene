@@ -14,7 +14,7 @@ int nof_digits(int n)
   return c;
 }
 
-int nof_lines(char* filename) {
+int nof_lines(const char* filename) {
   int nof_lines = 0;
   int c = 0;
   int prev = '\n';
@@ -27,14 +27,14 @@ int nof_lines(char* filename) {
   return nof_lines;
 }
 
-char* create_fn(char* dirname, int i, char* ext)
+char* create_fn(const char* dirname, int i, char* ext)
 {  char* fn = malloc((strlen(dirname)+1+nof_digits(i)+strlen(ext)+1)
 		     *sizeof(char));
   sprintf(fn,"%s/%d%s", dirname,i,ext);
   return fn;
 }
 
-FILE* open_file(char* dirname, int i, char* ext, char* mode)
+FILE* open_file(const char* dirname, int i, char* ext, char* mode)
 {
   FILE* f;
   char* fn = create_fn(dirname, i, ext);

@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+
+#include <time.h>
+
 #include "gopt.h"
 
 #include "xtab.h"
@@ -18,6 +21,7 @@
 #include "ls_BDq.h"
 #include "ls_LOO.h"
 #include "get_local_scores.h"
+
 
 
 /******** G L O B A L S *********/
@@ -257,7 +261,7 @@ void get_freqmem(int nof_keys){
 }
 
 void get_ctbs(int nof_keys){
-  printf("get_ctbs(%d)\n", nof_keys);
+  //printf("get_ctbs(%d)\n", nof_keys);
   int i;
 
   ctbs  = calloc(nof_vars+1, sizeof(xtab*));
@@ -266,7 +270,7 @@ void get_ctbs(int nof_keys){
 }
 
 void init_memory(const char* datfile){
-  printf("init_memory(%s)\n",datfile);
+  //printf("init_memory(%s)\n",datfile);
   xtab* ctb0       = dat2ctb(datfile);
   int max_nof_keys = xcount(ctb0);
 
@@ -381,7 +385,7 @@ void init_scorer(const char* essarg, const char* logregfile) {
 
 void init_globals_for_sel_vars(const char* datfile){
 
-  printf("init_globals_for_sel_vars(%s)\n", datfile);
+  //printf("init_globals_for_sel_vars(%s)\n", datfile);
 
   init_nof_vals();
   init_xh();
@@ -392,7 +396,7 @@ void init_globals(const char* vdfile, const char* datfile, const char* essarg, c
 		  const char* cstrfile, const char* priorfile, 
                   const char* logregfile, const char* selfile, int use_subset_walker) {
 
-  printf("init_globals(%s, %s, %s, %s, %s, %s, %s, %s, %d )\n",vdfile, datfile, essarg, resfile, cstrfile, priorfile, logregfile, selfile, use_subset_walker);
+  //printf("init_globals(%s, %s, %s, %s, %s, %s, %s, %s, %d )\n",vdfile, datfile, essarg, resfile, cstrfile, priorfile, logregfile, selfile, use_subset_walker);
 
   resultf = (strcmp("-", resfile) == 0) ? stdout : fopen(resfile, "wb");
   create_output_buffer(priorfile);
@@ -581,7 +585,7 @@ void scores(int len_vs, varset_t vs)
     }
   }
 }
-
+/* main loop */
 void walk_contabs(int len_vs, varset_t vs, int first_out_ix)/* GetLocalScores(ct, evars) */
 {
 
@@ -643,105 +647,111 @@ varset_t task_index2varset(int nof_taskvars, int task_index)
 
 int main(int argc, char* argv[])
 {
+	clock_t t;
+	t = clock();
 
-  void *options= gopt_sort( &argc, (const char**)argv, gopt_start(
-      gopt_option('l', GOPT_ARG, gopt_shorts('l'), gopt_longs( "logregfile" )),
-      gopt_option('n', GOPT_ARG, gopt_shorts(0),   gopt_longs( "nof-tasks" )),
-      gopt_option('i', GOPT_ARG, gopt_shorts(0),   gopt_longs( "task-index" )),
-      gopt_option('c', GOPT_ARG, gopt_shorts('c'), gopt_longs( "constraints" )),
-      gopt_option('p', GOPT_ARG, gopt_shorts('p'), gopt_longs( "prior" )),
-      gopt_option('s', GOPT_ARG, gopt_shorts('s'), gopt_longs( "selectvars" )),
-      gopt_option('b', GOPT_NOARG, gopt_shorts(0), gopt_longs( "no-save-all" )),
-      gopt_option('x', GOPT_NOARG, gopt_shorts(0), gopt_longs( "no-recurse" )),
-      gopt_option('w', GOPT_NOARG, gopt_shorts(0), gopt_longs( "use-subset-walker" )),
-      gopt_option('m', GOPT_ARG, gopt_shorts('m'), gopt_longs( "max-parents" ))
-						    )
-			    );
-  if (argc != 5){
-    fprintf(stderr, 
-	    "Usage: get_local_scores vdfile datfile "
-	    "(ess[l|L|r|R|q|Q|S|s] | AIC | BIC | fNML | qNML) resfile \n" 
-            " -l --logregfile file : needed for fNML and qNML\n"
-	    " --nof-tasks n\n"
-            " --task-index i\n"
-            " -c --constraints cstrfile\n"
-            " -p --prior priorfile\n"
-	    " -m --max-parents\n"
-	    " --no-save-all\n"
-	    " -s --selectvars selfile\n"
-	    " --no-recurse\n"
-	    " --use-subset-walker\n"
-);
-    return 1;
-  } else {
-    const char* nof_tasks_s;
-    const char* task_index_s;
-    const char* max_parents_s;
-    const char* tmp; /* for boolean flags */
-    int nof_tasks   = 1;
-    int task_index  = 0;
-    int nof_fixvars = 0;
-    int no_recurse  = 0;
-    int use_subset_walker = 0;
-    int len_vs;
-    const char* cstrfile   = NULL;
-    const char* priorfile  = NULL;
-    const char* selfile = NULL;
-    varset_t vs; /* variable set, represented by bits, for example, vs = 6 = 011 = {v1,v2} */
-    
-    if (gopt_arg(options, 'n', &nof_tasks_s))  nof_tasks  = atoi(nof_tasks_s);
-    if (gopt_arg(options, 'i', &task_index_s)) task_index = atoi(task_index_s);
-    if (gopt_arg(options, 'c', &cstrfile)){} ; /* could check file etc. */
-    if (gopt_arg(options, 'p', &priorfile)){} ; /* could check file etc. */
-    if (gopt_arg(options, 'l', &logregfile)){} ; /* could check file etc. */
-    if (gopt_arg(options, 's', &selfile)){} ; /* could check file */
-    if (gopt_arg(options, 'm', &max_parents_s)) max_parents = atoi(max_parents_s);
-    if (gopt_arg(options, 'b', &tmp)) save_all_scores = 0;  
-    if (gopt_arg(options, 'x', &tmp)) no_recurse = 1;  
-    if (gopt_arg(options, 'w', &tmp)) use_subset_walker = 1;  
-    if (task_index >= nof_tasks) {
-      fprintf(stderr, 
-	      "task index must be less than nof_tasks\n");
-      return 2;
-    }
+	void *options= gopt_sort( &argc, (const char**)argv, gopt_start(
+		gopt_option('l', GOPT_ARG, gopt_shorts('l'), gopt_longs( "logregfile" )),
+		gopt_option('n', GOPT_ARG, gopt_shorts(0),   gopt_longs( "nof-tasks" )),
+		gopt_option('i', GOPT_ARG, gopt_shorts(0),   gopt_longs( "task-index" )),
+		gopt_option('c', GOPT_ARG, gopt_shorts('c'), gopt_longs( "constraints" )),
+		gopt_option('p', GOPT_ARG, gopt_shorts('p'), gopt_longs( "prior" )),
+		gopt_option('s', GOPT_ARG, gopt_shorts('s'), gopt_longs( "selectvars" )),
+		gopt_option('b', GOPT_NOARG, gopt_shorts(0), gopt_longs( "no-save-all" )),
+		gopt_option('x', GOPT_NOARG, gopt_shorts(0), gopt_longs( "no-recurse" )),
+		gopt_option('w', GOPT_NOARG, gopt_shorts(0), gopt_longs( "use-subset-walker" )),
+		gopt_option('m', GOPT_ARG, gopt_shorts('m'), gopt_longs( "max-parents" ))
+								)
+					);
+	if (argc != 5){
+		fprintf(stderr, 
+			"Usage: get_local_scores vdfile datfile "
+			"(ess[l|L|r|R|q|Q|S|s] | AIC | BIC | fNML | qNML) resfile \n" 
+				" -l --logregfile file : needed for fNML and qNML\n"
+			" --nof-tasks n\n"
+				" --task-index i\n"
+				" -c --constraints cstrfile\n"
+				" -p --prior priorfile\n"
+			" -m --max-parents\n"
+			" --no-save-all\n"
+			" -s --selectvars selfile\n"
+			" --no-recurse\n"
+			" --use-subset-walker\n"
+	);
+		return 1;
+	} else {
+		const char* nof_tasks_s;
+		const char* task_index_s;
+		const char* max_parents_s;
+		const char* tmp; /* for boolean flags */
+		int nof_tasks   = 1;
+		int task_index  = 0;
+		int nof_fixvars = 0;
+		int no_recurse  = 0;
+		int use_subset_walker = 0;
+		int len_vs;
+		const char* cstrfile   = NULL;
+		const char* priorfile  = NULL;
+		const char* selfile = NULL;
+		varset_t vs; /* variable set, represented by bits, for example, vs = 6 = 011 = {v1,v2} */
+		
+		if (gopt_arg(options, 'n', &nof_tasks_s))  nof_tasks  = atoi(nof_tasks_s);
+		if (gopt_arg(options, 'i', &task_index_s)) task_index = atoi(task_index_s);
+		if (gopt_arg(options, 'c', &cstrfile)){} ; /* could check file etc. */
+		if (gopt_arg(options, 'p', &priorfile)){} ; /* could check file etc. */
+		if (gopt_arg(options, 'l', &logregfile)){} ; /* could check file etc. */
+		if (gopt_arg(options, 's', &selfile)){} ; /* could check file */
+		if (gopt_arg(options, 'm', &max_parents_s)) max_parents = atoi(max_parents_s);
+		if (gopt_arg(options, 'b', &tmp)) save_all_scores = 0;  
+		if (gopt_arg(options, 'x', &tmp)) no_recurse = 1;  
+		if (gopt_arg(options, 'w', &tmp)) use_subset_walker = 1;  
+		if (task_index >= nof_tasks) {
+		fprintf(stderr, 
+			"task index must be less than nof_tasks\n");
+		return 2;
+		}
 
-    nof_fixvars = ilog2(nof_tasks);
-    if(nof_tasks != (1<<nof_fixvars)) {
-      fprintf(stderr, 
-	      "nof_tasks has to be a power of two - %d is not\n", nof_tasks);
-      return 3;
-    }
+		nof_fixvars = ilog2(nof_tasks);
+		if(nof_tasks != (1<<nof_fixvars)) {
+		fprintf(stderr, 
+			"nof_tasks has to be a power of two - %d is not\n", nof_tasks);
+		return 3;
+		}
 
-    datfile = argv[2];
-    essarg  = argv[3];
-    init_globals(argv[1], datfile, essarg, argv[argc-1],
-		 cstrfile, priorfile, logregfile, selfile, use_subset_walker);
-    vs = task_index2varset(nof_vars - nof_fixvars, task_index);
+		datfile = argv[2];
+		essarg  = argv[3];
+		init_globals(argv[1], datfile, essarg, argv[argc-1],
+			cstrfile, priorfile, logregfile, selfile, use_subset_walker);
+		vs = task_index2varset(nof_vars - nof_fixvars, task_index);
 
-    {
-      int i;
+		{
+		int i;
 
-      /* Sync ctbs to vs 
-	 - maybe you could have just gathered these in the first place */
+		/* Sync ctbs to vs 
+		- maybe you could have just gathered these in the first place */
 
-      len_vs = nof_vars; 
-      for(i=0; i<nof_vars; ++i){
-	      if(!(vs & SINGLETON(i))) /* if (vs == SINGLETON(i)) */
-	        contab2contab(i, len_vs--);}
-    }
+		len_vs = nof_vars; 
+		for(i=0; i<nof_vars; ++i){
+			if(!(vs & SINGLETON(i))) /* if (vs == SINGLETON(i)) */
+				contab2contab(i, len_vs--);}
+		}
 
-    if(no_recurse)
-      scores(len_vs, vs);
-    else
-      if (use_subset_walker)
-	walk_subsets(nof_cols-1, 0, nof_cols);      
-      else
-	walk_contabs(len_vs, vs, nof_vars-nof_fixvars);
+		if(no_recurse)
+		scores(len_vs, vs);
+		else
+		if (use_subset_walker)
+		walk_subsets(nof_cols-1, 0, nof_cols);      
+		else
+		walk_contabs(len_vs, vs, nof_vars-nof_fixvars);
 
-    free_globals(use_subset_walker);
-  }
-       
-  gopt_free(options);
+		free_globals(use_subset_walker);
+	}
 
-  return 0;
+	gopt_free(options);
+
+	t = clock() - t;
+	double elapsed_seconds = ((double)t)/CLOCKS_PER_SEC;
+	printf("get_local_scores elapsed time: %f s\n", elapsed_seconds);
+
+	return 0;
 }

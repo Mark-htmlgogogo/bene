@@ -30,7 +30,7 @@ xentry* xadd(xtab* t, uint h, uchar* key, int klen, int* new) {
 
 /* Returns an xtab* with parameters */
 xtab* xcreate(int range, int nof_xentries){
-  printf("xcreate(%d, %d)\n", range, nof_xentries);
+  //printf("xcreate(%d, %d)\n", range, nof_xentries);
   xtab* t     = calloc(1,sizeof(xtab));
   t->range    = range;
   t->ix       = calloc(range, sizeof(xentry*));

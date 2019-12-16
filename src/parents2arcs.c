@@ -25,7 +25,6 @@ void parents2arcs(char* parfile, char* arcfile)
 
 int main(int argc, char* argv[])
 {
-
   if (argc!=3) {
     fprintf(stderr, "Usage: parents2arcs parentfile arcfile\n");
     return 1;

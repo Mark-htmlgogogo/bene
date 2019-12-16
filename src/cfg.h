@@ -1,6 +1,7 @@
 #ifndef __CFG_H_
 #define __CFG_H_
 #include <float.h>
+#include <time.h>
 
 #if __STDC_VERSION__ == 199901L
 
